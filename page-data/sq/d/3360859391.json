@@ -1,1 +1,1 @@
-{"data":{"allMdx":{"edges":[{"node":{"frontmatter":{"title":"Home","order":1,"hideToc":true},"fields":{"slug":"/"},"parent":{"sourceInstanceName":"pages"}}},{"node":{"frontmatter":{"title":"Getting Started","order":1,"hideToc":true},"fields":{"slug":"/start/"},"parent":{"sourceInstanceName":"pages"}}}]}}}
+{"data":{"allMdx":{"edges":[{"node":{"frontmatter":{"title":"Getting Started","order":1,"hideToc":true},"fields":{"slug":"/start/"},"parent":{"sourceInstanceName":"pages"}}}]}}}
