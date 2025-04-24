@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://jacdac.github.io/pxt-jacdac/sitemap/sitemap-index.xml
+Sitemap: https://jacdac.github.io/tools/makecode-sim/sitemap/sitemap-index.xml
 Host: https://jacdac.github.io
