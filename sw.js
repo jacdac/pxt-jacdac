@@ -27,7 +27,7 @@ workbox.core.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-f9489c7767a84121922b.js"
+    "url": "webpack-runtime-976b96b1fd103e1fc9a2.js"
   },
   {
     "url": "styles.d8a8b9e38931c215680d.css"
@@ -37,7 +37,7 @@ self.__precacheManifest = [
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "4a1737708211f4d030a595e8ebdc8bd6"
+    "revision": "a226d07552b0a179da8eeb555fdbea48"
   },
   {
     "url": "static/webfonts/s/roboto/v48/KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWuaabVmUiAo.woff2"
@@ -50,7 +50,7 @@ self.__precacheManifest = [
   },
   {
     "url": "manifest.webmanifest",
-    "revision": "0b9dda97cf64f7573d2477ff9bc024ad"
+    "revision": "3f20b57407fe6b6cd4972814a2784d4a"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
@@ -155,12 +155,12 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
   lastNavigationRequest = event.request.url
 
   let { pathname } = new URL(event.request.url)
-  pathname = pathname.replace(new RegExp(`^/simx/jacdac/pxt-jacdac/-`), ``)
+  pathname = pathname.replace(new RegExp(`^/pxt-jacdac`), ``)
 
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`/simx/jacdac/pxt-jacdac/-/app-c5d58a86d2340cc58640.js`))) {
+  if (!resources || !(await caches.match(`/pxt-jacdac/app-fb90cef400b27258cc50.js`))) {
     return await fetch(event.request)
   }
 
@@ -173,7 +173,7 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
     }
   }
 
-  const offlineShell = `/simx/jacdac/pxt-jacdac/-/offline-plugin-app-shell-fallback/index.html`
+  const offlineShell = `/pxt-jacdac/offline-plugin-app-shell-fallback/index.html`
   const offlineShellWithKey = workbox.precaching.getCacheKeyForURL(offlineShell)
   return await caches.match(offlineShellWithKey)
 })
