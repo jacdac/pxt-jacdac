@@ -58,9 +58,8 @@
                     if (
                         data &&
                         ((data.type === "messagepacket" &&
-                            data.channel &&
-                            data.channel.includes("jacdac")) ||
-                            data.channel === "devicescript")
+                             data.channel === "jacdac") ||
+                             data.channel === "devicescript")
                     ) {
                         if (
                             (ws === null || ws === void 0
@@ -96,7 +95,7 @@
                             const data = new Uint8Array(msg.data)
                             const pktMsg = {
                                 type: "messagepacket",
-                                channel: "jacdac/pxt-jacdac",
+                                channel: "jacdac",
                                 data: data,
                                 sender: sender,
                             }

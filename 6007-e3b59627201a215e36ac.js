@@ -1,0 +1,67 @@
+"use strict";
+(self["webpackChunkjacdac_docs"] = self["webpackChunkjacdac_docs"] || []).push([[6007,6267,5235],{
+
+/***/ 46007:
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ MakeCodeExtensionFooter; }
+/* harmony export */ });
+/* harmony import */ var gatsby_theme_material_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16821);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(67294);
+/* harmony import */ var _specification_DeviceSpecificationList__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(45235);
+/* harmony import */ var _MakeCodeProjects__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(26267);
+function MakeCodeExtensionFooter(props){var{serviceName}=props;return/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment,null,/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_MakeCodeProjects__WEBPACK_IMPORTED_MODULE_3__["default"],{header:/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("h2",{id:"projects"},"Projects"),serviceName:serviceName}),/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_specification_DeviceSpecificationList__WEBPACK_IMPORTED_MODULE_2__["default"],{header:/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("h2",{id:"devices"},"Devices"),buyNow:true,serviceName:serviceName}),/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("h2",null,"See Also"),/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ul",null,/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li",null,/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(gatsby_theme_material_ui__WEBPACK_IMPORTED_MODULE_0__/* .Link */ .rU,{to:"/clients/makecode/user-guide/"},"User guide")),/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li",null,/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(gatsby_theme_material_ui__WEBPACK_IMPORTED_MODULE_0__/* .Link */ .rU,{to:"/services/"+serviceName},"Service specification"))));}
+
+/***/ }),
+
+/***/ 26267:
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ MakeCodeProjects; }
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(15785);
+/* harmony import */ var gatsby__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24503);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(67294);
+/* harmony import */ var _jacdac_ts_src_jdom_spec__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(62070);
+/* harmony import */ var _jacdac_ts_src_jdom_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(46196);
+/* harmony import */ var _ui_PageLinkList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5754);
+function MakeCodeProjects(props){var _arrayify;var{serviceName,serviceClass,header}=props;var serviceNames=(0,_jacdac_ts_src_jdom_utils__WEBPACK_IMPORTED_MODULE_3__/* .unique */ .Tw)([].concat((0,_babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)((serviceName===null||serviceName===void 0?void 0:serviceName.split(/\s*,\s*/gi).filter(s=>!!s))||[]),(0,_babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(((_arrayify=(0,_jacdac_ts_src_jdom_utils__WEBPACK_IMPORTED_MODULE_3__/* .arrayify */ .lE)(serviceClass))===null||_arrayify===void 0?void 0:_arrayify.map(sc=>{var _serviceSpecification;return(_serviceSpecification=(0,_jacdac_ts_src_jdom_spec__WEBPACK_IMPORTED_MODULE_2__/* .serviceSpecificationFromClassIdentifier */ .d5)(sc))===null||_serviceSpecification===void 0?void 0:_serviceSpecification.shortId;}).filter(s=>!!s))||[])));var query=(0,gatsby__WEBPACK_IMPORTED_MODULE_0__.useStaticQuery)("3868184074");var nodes=(0,react__WEBPACK_IMPORTED_MODULE_1__.useMemo)(()=>{// grab the nodes
+var nodes=query.allMdx.edges.map(edge=>edge.node);// filter out
+if(serviceNames!==null&&serviceNames!==void 0&&serviceNames.length)nodes=nodes.filter(node=>serviceNames.some(n=>{var _node$frontmatter$ser;return((_node$frontmatter$ser=node.frontmatter.services)===null||_node$frontmatter$ser===void 0?void 0:_node$frontmatter$ser.indexOf(n))>-1;}));return nodes.map(_ref=>{var{fields,frontmatter}=_ref;return{slug:fields.slug,title:frontmatter.title,description:frontmatter.description,services:frontmatter.services,order:frontmatter.order};});},[serviceNames.join(",")]);return/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_ui_PageLinkList__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .Z,{header:header,nodes:nodes});}
+
+/***/ }),
+
+/***/ 45235:
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ DeviceSpecificationList; }
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(15785);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(67294);
+/* harmony import */ var _mui_material__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(15725);
+/* harmony import */ var _jacdac_ts_jacdac_spec_spectool_jdspec__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(18763);
+/* harmony import */ var _devices_useDeviceSpecifications__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56225);
+/* harmony import */ var _useGridBreakpoints__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(44300);
+/* harmony import */ var _jacdac_ts_src_jdom_pretty__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(34743);
+/* harmony import */ var _DeviceSpecificationCard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(36581);
+/* harmony import */ var _enclosure_ec30__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(99458);
+/* harmony import */ var _jacdac_ts_src_jdom_spec__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(62070);
+/* harmony import */ var _ui_GridHeader__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(99834);
+function DeviceSpecificationList(props){var{sx,header,query,count,serviceClass,serviceName,company,devices,updates,buyNow,makeCode,hardwareDesign,firmwareSources,transports,tags,ec30,connector,shapes,ids,onDeviceClick,hideChips,hideServices}=props;var specifications=(0,_devices_useDeviceSpecifications__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .Z)({includeExperimental:!buyNow});var specs=(0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(()=>{var r=(devices||specifications).slice(0);if(ids!==null&&ids!==void 0&&ids.length)r=r.filter(_ref=>{var{id}=_ref;return ids.indexOf(id)>-1;});if(company){var lc=(0,_jacdac_ts_jacdac_spec_spectool_jdspec__WEBPACK_IMPORTED_MODULE_1__/* .escapeDeviceIdentifier */ .o9)(company);r=r.filter(spec=>(0,_jacdac_ts_jacdac_spec_spectool_jdspec__WEBPACK_IMPORTED_MODULE_1__/* .escapeDeviceIdentifier */ .o9)(spec.company).startsWith(lc));}if(!isNaN(serviceClass))r=r.filter(spec=>{var _spec$services;return((_spec$services=spec.services)===null||_spec$services===void 0?void 0:_spec$services.indexOf(serviceClass))>-1;});if(serviceName){var si=(0,_jacdac_ts_src_jdom_spec__WEBPACK_IMPORTED_MODULE_7__/* .serviceSpecificationFromName */ .kB)(serviceName);if(si)r=r.filter(spec=>{var _spec$services2;return((_spec$services2=spec.services)===null||_spec$services2===void 0?void 0:_spec$services2.indexOf(si.classIdentifier))>-1;});}if(updates)r=r.filter(spec=>spec.repo);if(buyNow!==undefined)r=r.filter(spec=>!!spec.storeLink===buyNow);if(hardwareDesign)r=r.filter(spec=>spec.hardwareDesign);if(connector==="jacdac")r=r.filter(spec=>spec.connector!=="noConnector"&&spec.connector!=="grove"&&spec.connector!=="qwiic");else if(connector==="grove")r=r.filter(spec=>spec.connector==="grove"||spec.connector==="qwiic");else if(connector==="none")r=r.filter(spec=>spec.connector==="noConnector"||spec.connector==="edgeIndependent");if(firmwareSources)r=r.filter(spec=>spec.firmwareSource);if(ec30)r=r.filter(spec=>{var _spec$tags;return (0,_enclosure_ec30__WEBPACK_IMPORTED_MODULE_6__/* .isEC30 */ .gs)(spec.shape)||((_spec$tags=spec.tags)===null||_spec$tags===void 0?void 0:_spec$tags.includes("ec30"));});if(shapes)r=r.filter(spec=>shapes.some(shape=>shape===spec.shape));if(typeof makeCode==="string")r=r.filter(spec=>{var _spec$makeCodeRepo;return(_spec$makeCodeRepo=spec.makeCodeRepo)===null||_spec$makeCodeRepo===void 0?void 0:_spec$makeCodeRepo.some(r=>r.target===makeCode);});else if(makeCode!==undefined)r=r.filter(spec=>{var _spec$makeCodeRepo2;return!!((_spec$makeCodeRepo2=spec.makeCodeRepo)!==null&&_spec$makeCodeRepo2!==void 0&&_spec$makeCodeRepo2.length)===makeCode;});if(transports!==null&&transports!==void 0&&transports.length)r=r.filter(spec=>{var _spec$transport;return transports.indexOf((_spec$transport=spec.transport)===null||_spec$transport===void 0?void 0:_spec$transport.type)>-1;});if(tags!==null&&tags!==void 0&&tags.length)r=r.filter(spec=>tags.every(tag=>{var _spec$tags2;return(_spec$tags2=spec.tags)===null||_spec$tags2===void 0?void 0:_spec$tags2.includes(tag);}));if(query)r=r.filter(spec=>[spec.name,spec.description,spec.company].concat((0,_babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)((spec.productIdentifiers||[]).map(p=>p.toString(16))),(0,_babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)((spec.services||[]).map(p=>p.toString(16))),(0,_babel_runtime_helpers_esm_toConsumableArray__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)((spec.services||[]).map(srv=>(0,_jacdac_ts_src_jdom_pretty__WEBPACK_IMPORTED_MODULE_4__/* .serviceName */ .HV)(srv)))).some(s=>{var _s$toLowerCase;return(s===null||s===void 0?void 0:(_s$toLowerCase=s.toLowerCase())===null||_s$toLowerCase===void 0?void 0:_s$toLowerCase.indexOf(query.toLowerCase()))>-1;}));r=r.sort((a,b)=>{var _a$tags,_b$tags;// kits first
+var c=-(((_a$tags=a.tags)===null||_a$tags===void 0?void 0:_a$tags.indexOf("kit"))>-1?1:0)+(((_b$tags=b.tags)===null||_b$tags===void 0?void 0:_b$tags.indexOf("kit"))>-1?1:0);if(c)return c;// device with transports
+c=-(a.transport?1:0)+(b.transport?1:0);if(c)return c;// use ec30 shape
+c=-((0,_enclosure_ec30__WEBPACK_IMPORTED_MODULE_6__/* .isEC30 */ .gs)(a.shape)?1:0)+((0,_enclosure_ec30__WEBPACK_IMPORTED_MODULE_6__/* .isEC30 */ .gs)(b.shape)?1:0);if(c)return c;// with connectors first
+c=-(a.connector==="noConnector"||a.connector==="edgePassive"||a.connector==="edgeIndependent"?1:0)+(b.connector==="noConnector"||b.connector==="edgePassive"||b.connector==="edgeIndependent"?1:0);if(c)return c;// by order
+c=(a.order||50)-(b.order||50);if(c)return c;// by name
+return a.name.localeCompare(b.name);});if(count!==undefined)r=r.slice(0,count);return r;},[query,serviceClass,serviceName,count,company,JSON.stringify(devices===null||devices===void 0?void 0:devices.map(d=>d.id)),specifications,updates,buyNow,makeCode,hardwareDesign,firmwareSources,transports===null||transports===void 0?void 0:transports.join(","),tags===null||tags===void 0?void 0:tags.join(","),ec30,connector,shapes===null||shapes===void 0?void 0:shapes.join(","),ids===null||ids===void 0?void 0:ids.join(",")]);var gridBreakpoints=(0,_useGridBreakpoints__WEBPACK_IMPORTED_MODULE_3__/* ["default"] */ .Z)(specs.length);var size=(specs===null||specs===void 0?void 0:specs.length)<6?"catalog":"preview";if(!specs.length)return null;return/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_material__WEBPACK_IMPORTED_MODULE_10__/* ["default"] */ .ZP,{sx:sx,container:true,spacing:3},header&&/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ui_GridHeader__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z,{title:header}),specs.map(specification=>/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_material__WEBPACK_IMPORTED_MODULE_10__/* ["default"] */ .ZP,Object.assign({key:specification.id,item:true},gridBreakpoints),/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_DeviceSpecificationCard__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z,{specification:specification,size:size,onClick:onDeviceClick?()=>onDeviceClick(specification):undefined,hideChips:hideChips,hideServices:hideServices}))));}
+
+/***/ })
+
+}]);
+//# sourceMappingURL=6007-e3b59627201a215e36ac.js.map
