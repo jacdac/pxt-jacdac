@@ -365,6 +365,13 @@ var jacdac = (() => {
     ECO2RegPack2.MaxECO2 = "u22.10";
     ECO2RegPack2.Variant = "u8";
   })(ECO2RegPack || (ECO2RegPack = {}));
+  var ElectricalConductivityRegPack;
+  ((ElectricalConductivityRegPack2) => {
+    ElectricalConductivityRegPack2.ElectricalConductivity = "u22.10";
+    ElectricalConductivityRegPack2.ElectricalConductivityError = "u22.10";
+    ElectricalConductivityRegPack2.MinElectricalConductivity = "u22.10";
+    ElectricalConductivityRegPack2.MaxElectricalConductivity = "u22.10";
+  })(ElectricalConductivityRegPack || (ElectricalConductivityRegPack = {}));
   var FlexRegPack;
   ((FlexRegPack2) => {
     FlexRegPack2.Bending = "i1.15";
