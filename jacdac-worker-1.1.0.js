@@ -787,6 +787,13 @@ var jacdac = (() => {
   ((RoverRegPack2) => {
     RoverRegPack2.Kinematics = "i16.16 i16.16 i16.16 i16.16 i16.16";
   })(RoverRegPack || (RoverRegPack = {}));
+  var RotationsPerMinuteRegPack;
+  ((RotationsPerMinuteRegPack2) => {
+    RotationsPerMinuteRegPack2.Rpm = "i24.8";
+    RotationsPerMinuteRegPack2.ClicksPerTurn = "u8";
+    RotationsPerMinuteRegPack2.MinRpm = "i24.8";
+    RotationsPerMinuteRegPack2.MaxRpm = "i24.8";
+  })(RotationsPerMinuteRegPack || (RotationsPerMinuteRegPack = {}));
   var SatNavRegPack;
   ((SatNavRegPack2) => {
     SatNavRegPack2.Position = "u64 i9.23 i9.23 u16.16 i26.6 u16.16";

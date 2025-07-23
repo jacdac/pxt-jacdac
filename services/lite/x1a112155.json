@@ -1,5 +1,5 @@
 {
-  "status": "experimental",
+  "status": "stable",
   "shortId": "hidjoystick",
   "camelName": "hidJoystick",
   "classIdentifier": 437330261,

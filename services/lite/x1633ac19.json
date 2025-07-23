@@ -1,5 +1,5 @@
 {
-  "status": "experimental",
+  "status": "stable",
   "shortId": "dcvoltagemeasurement",
   "camelName": "dcVoltageMeasurement",
   "classIdentifier": 372485145,
