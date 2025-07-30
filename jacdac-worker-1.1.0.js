@@ -251,6 +251,17 @@ var jacdac = (() => {
     ControlRegPack2.McuTemperature = "i16";
     ControlRegPack2.Uptime = "u64";
   })(ControlRegPack || (ControlRegPack = {}));
+  var CursorCharacterScreenRegPack;
+  ((CursorCharacterScreenRegPack2) => {
+    CursorCharacterScreenRegPack2.Enabled = "u0.16";
+    CursorCharacterScreenRegPack2.Rows = "u8";
+    CursorCharacterScreenRegPack2.Columns = "u8";
+  })(CursorCharacterScreenRegPack || (CursorCharacterScreenRegPack = {}));
+  var CursorCharacterScreenCmdPack;
+  ((CursorCharacterScreenCmdPack2) => {
+    CursorCharacterScreenCmdPack2.SetCursor = "u8 u8";
+    CursorCharacterScreenCmdPack2.Show = "s";
+  })(CursorCharacterScreenCmdPack || (CursorCharacterScreenCmdPack = {}));
   var DcCurrentMeasurementRegPack;
   ((DcCurrentMeasurementRegPack2) => {
     DcCurrentMeasurementRegPack2.MeasurementName = "s";

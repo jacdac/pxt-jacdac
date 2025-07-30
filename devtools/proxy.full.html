@@ -58,8 +58,9 @@
                     if (
                         data &&
                         ((data.type === "messagepacket" &&
-                             data.channel === "jacdac") ||
-                             data.channel === "devicescript")
+                            data.channel &&
+                            data.channel === "jacdac" ||
+                            data.channel === "devicescript")
                     ) {
                         if (
                             (ws === null || ws === void 0
