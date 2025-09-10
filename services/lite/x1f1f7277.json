@@ -1,5 +1,5 @@
 {
-  "status": "rc",
+  "status": "stable",
   "shortId": "electricalconductivity",
   "camelName": "electricalConductivity",
   "classIdentifier": 522154615,
