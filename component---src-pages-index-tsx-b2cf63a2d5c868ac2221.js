@@ -89,7 +89,7 @@ var MakeCodeIcon = __webpack_require__(71348);
 // EXTERNAL MODULE: ./src/components/translations.ts
 var translations = __webpack_require__(27761);
 ;// CONCATENATED MODULE: ./src/components/makecode/MakeCodeAddBlocksButton.tsx
-function MakeCodeAddBlocksButton(){var bus=(0,useBus/* default */.Z)();var iframeBridge=bus.nodeData[iframebridgeclient/* default.DATA_ID */.ZP.DATA_ID];var extensions=(0,useChange/* default */.Z)(iframeBridge,_=>_===null||_===void 0?void 0:_.candidateExtensions());var handleAdd=()=>iframeBridge===null||iframeBridge===void 0?void 0:iframeBridge.postAddExtensions();var isMakeCodeTool=(0,react.useMemo)(()=>typeof window!=="undefined"&&/makecode/.test(window.location.href),[]);var isButtonEnabled=!!(extensions!==null&&extensions!==void 0&&extensions.length);if(!isMakeCodeTool)return null;return/*#__PURE__*/react.createElement(Tooltip/* default */.Z,{describeChild:true,title:(0,translations.tL)(isButtonEnabled?"blockEnabled":"blockDisabled"),placement:"bottom"},/*#__PURE__*/react.createElement("span",null,/*#__PURE__*/react.createElement(gatsby_theme_material_ui/* Button */.zx,{sx:{mr:1},size:"small",color:"primary",variant:"contained",disabled:!isButtonEnabled,startIcon:/*#__PURE__*/react.createElement(MakeCodeIcon/* default */.Z,null),onClick:handleAdd},(0,translations.tL)("blockAdd"))));}
+function MakeCodeAddBlocksButton(){var bus=(0,useBus/* default */.Z)();var iframeBridge=bus.nodeData[iframebridgeclient/* default.DATA_ID */.ZP.DATA_ID];var extensions=(0,useChange/* default */.Z)(iframeBridge,_=>_===null||_===void 0?void 0:_.candidateExtensions());var handleAdd=()=>iframeBridge===null||iframeBridge===void 0?void 0:iframeBridge.postAddExtensions();var isButtonEnabled=!!(extensions!==null&&extensions!==void 0&&extensions.length);return/*#__PURE__*/react.createElement(Tooltip/* default */.Z,{describeChild:true,title:(0,translations.tL)(isButtonEnabled?"blockEnabled":"blockDisabled"),placement:"bottom"},/*#__PURE__*/react.createElement("span",null,/*#__PURE__*/react.createElement(gatsby_theme_material_ui/* Button */.zx,{sx:{mr:1},size:"small",color:"primary",variant:"contained",disabled:!isButtonEnabled,startIcon:/*#__PURE__*/react.createElement(MakeCodeIcon/* default */.Z,null),onClick:handleAdd},(0,translations.tL)("blockAdd"))));}
 ;// CONCATENATED MODULE: ./src/components/makecode/MakeCodeBlocksAndSimsBox.tsx
 function MakeCodeBlocksAndSimsBox(){return/*#__PURE__*/react.createElement(Box/* default */.Z,{m:1},/*#__PURE__*/react.createElement(MakeCodeAddBlocksButton,null),/*#__PURE__*/react.createElement(StartMissingSimulatorsButton/* default */.Z,{variant:"contained"},(0,translations.tL)("simAdd")));}
 // EXTERNAL MODULE: ./jacdac-ts/src/jdom/constants.ts
@@ -187,4 +187,4 @@ function Page() {
 /***/ })
 
 }]);
-//# sourceMappingURL=component---src-pages-index-tsx-f6a9ab31c7f4da9bed5e.js.map
+//# sourceMappingURL=component---src-pages-index-tsx-b2cf63a2d5c868ac2221.js.map
