@@ -8,7 +8,7 @@ extern void (*sendJDFrame)(const uint8_t *data);
 } // namespace pxt
 namespace jacdac {
 void mbbridge_init();
-void jdble_init();
+// void jdble_init(); no JD over BLE for nows
 } // namespace jacdac
 #endif
 

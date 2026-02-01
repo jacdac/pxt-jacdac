@@ -227,11 +227,11 @@ void uart_init_() {
         return;
     }
 
-#ifdef MICROBIT_CODAL
-    sws = new ZSingleWireSerial(uBit.io.P12);
-#else
+// #ifdef MICROBIT_CODAL
+//     sws = new ZSingleWireSerial(uBit.io.P12);
+// #else
     sws = new ZSingleWireSerial(*LOOKUP_PIN(JACK_TX));
-#endif
+//#endif
     sws->setBaud(1000000);
 
     sws->p.setIRQ(line_falling);
