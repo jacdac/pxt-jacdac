@@ -1,0 +1,22 @@
+{
+    "name": "jacdac-bitmap",
+    "version": "0.0.0",
+    "description": "A color bitmap.",
+    "files": [
+        "constants.ts",
+        "client.g.ts"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "supportedTargets": [
+        "microbit",
+        "arcade",
+        "maker",
+        "calliopemini"
+    ],
+    "dependencies": {
+        "core": "*",
+        "jacdac": "github:jacdac/pxt-jacdac"
+    }
+}
