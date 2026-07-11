@@ -51,7 +51,7 @@ namespace jacdac._rolemgr {
             if (this.roleQuery.device) return this.roleQuery.device
             const slashIdx = this.role.indexOf("/")
             if (slashIdx < 0) return this.role
-            else return this.role.slice(0, slashIdx - 1)
+            else return this.role.slice(0, slashIdx)
         }
 
         select(devwrap: DeviceWrapper, serviceIdx: number) {
@@ -257,6 +257,9 @@ namespace jacdac._rolemgr {
 
         bindRoles() {
             if (!this.running) return
+
+            // TODO: if we already have roles bound in settings, these should take 
+            // TODO: precedence over any auto-bind, and we should not unbind them
 
             // sanity check and unbind any self roles if the self device is running
             for (const cl of jacdac.bus.allClients) {
