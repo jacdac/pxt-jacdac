@@ -158,6 +158,31 @@ namespace jacdac._rolemgr {
         }
     }
 
+    function tryBindFromStoredRole(
+        b: RoleBinding,
+        serviceClass: number,
+        wraps: DeviceWrapper[]
+    ) {
+        const roleName = b.roleQuery.role
+        for (const w of wraps) {
+            const dev = w.device
+            const n = dev.serviceClassLength
+            for (let serviceIdx = 1; serviceIdx < n; serviceIdx++) {
+                if (w.bindings[serviceIdx]) continue
+                if (dev.serviceClassAt(serviceIdx) != serviceClass) continue
+                const savedRole = getRole(dev.deviceId, serviceIdx)
+                if (savedRole != roleName) continue
+                if (!dev.matchesRoleAt(b.roleQuery, serviceClass, serviceIdx))
+                    continue
+                b.boundToDev = dev
+                b.boundToServiceIdx = serviceIdx
+                w.bindings[serviceIdx] = b
+                return true
+            }
+        }
+        return false
+    }
+
     function maxIn<T>(
         arr: T[],
         cmp: (a: T, b: T) => number,
@@ -326,6 +351,10 @@ namespace jacdac._rolemgr {
                                 w.bindings[cl.serviceIndex] = b
                                 break
                             }
+                    } else {
+                        // If a role was explicitly bound in settings, keep that
+                        // assignment stable and let attach logic reconnect to it.
+                        tryBindFromStoredRole(b, cl.serviceClass, wraps)
                     }
                     bindings.push(b)
                 }
