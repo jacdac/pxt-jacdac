@@ -102,7 +102,7 @@
         "label": "Configure",
         "group": "Roles",
         "url": "https://jacdac.github.io/jacdac-docs/tools/makecode-editor-extension",
-        "localUrl": "http://localhost:8000/tools/makecode-editor-extension"
+        "localUrl": "https://jacdac.github.io/jacdac-docs/tools/makecode-editor-extension"
     },
     "yotta": {
         "config": {
