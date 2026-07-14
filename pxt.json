@@ -97,6 +97,13 @@
         "mbdal"
     ],
     "binaryonly": true,
+    "extension": {
+        "namespace": "modules",
+        "label": "Configure",
+        "group": "Roles",
+        "url": "https://microsoft.github.io/jacdac-docs/tools/makecode-editor-extension",
+        "localUrl": "http://localhost:8000/tools/makecode-editor-extension"
+    },
     "yotta": {
         "config": {
             "JACDAC_WEBUSB": 1,
