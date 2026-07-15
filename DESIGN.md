@@ -13,63 +13,56 @@ The architecture is centered around three layers:
 
 1. Event foundation (`EventSource` and listeners)
 2. Packet and transport primitives (`JDPacket`, pipe classes, pack/unpack)
-3. Routing and binding (`Bus`, `Device`, `Server`, `Client`, role manager)
+3. Routing and binding (`Bus`, `Device`, `Server`, `Client`, `RoleManagerServer`)
 
-`EventSource` is the base type for most runtime objects. `Bus` orchestrates startup, device discovery, packet dispatch, and client/server attachment. `Device` represents a remote Jacdac node and routes incoming packets to matching clients. `Server` and `Client` implement service behavior, with `RegisterClient` handling typed register state and sync.
+`EventSource` is the base type for most runtime objects. `Bus` orchestrates startup, device discovery, packet dispatch, and client/server attachment. `Device` represents a remote Jacdac node and routes incoming packets to matching clients. `Server` and `Client` implement the two sides of service behavior: servers are hosts of services, while clients are consumers of these services.
 
 `RoleManagerServer` performs role-to-device/service binding using helper structures (`RoleBinding`, `ServerBindings`, `DeviceWrapper`).
 
 ## Class Inventory (Top-Level `*.ts`)
 
+We focus here on exported classes, ignoring internal ones used for implementation.
+
 ### Event Foundation
+
 - `EventListener` (`eventsource.ts`)
 - `EventSource` (`eventsource.ts`)
 
 ### Packet/Transport
+
 - `JDPacket` (`packet.ts`)
-- `AckAwaiter` (`packet.ts`, internal)
-- `DelayedPacket` (`eventqueue.ts`, internal)
-- `InPipe` (`pipes.ts`)
-- `OutPipe` (`pipes.ts`)
-- `TokenParser` (`pack.ts`, internal)
+- `InPipe` and `OutPipe` (`pipes.ts`)
 - `JDDiagnostics` (`diagnostics.ts`)
 
 ### Core Routing
-- `Bus` extends `EventSource` (`routing.ts`)
-- `Server` extends `EventSource` (`routing.ts`)
-- `Client` extends `EventSource` (`routing.ts`)
-- `RegisterClient<T>` extends `EventSource` (`routing.ts`)
-- `Device` extends `EventSource` (`routing.ts`)
-- `ClientRoleQuery` (`routing.ts`)
-- `ClientPacketQueue` (`routing.ts`, internal)
-- `RegQuery` (`routing.ts`, internal)
-- `ProxyServer` extends `Server` (`routing.ts`, internal)
-- `BrainServer` extends `Server` (`routing.ts`, internal)
+
+- `Bus` extends `EventSource` (`routing.ts`); the bus hosts devices
+- `Device` extends `EventSource` (`routing.ts`); a device can host multiple services and can be bound to multiple clients
+- `Server` extends `EventSource` (`routing.ts`); a server 
+implements a single service; it is useful for exposing local (self)
+hardware features on the Jacdac bus;
 - `ControlServer` extends `Server` (`routing.ts`)
+- `Client` extends `EventSource` (`routing.ts`); this is the primary user visible way to interact with a Jacdac service;
+- `RegisterClient<T>` extends `EventSource` (`routing.ts`)
 
 ### Role Management
+
 - `RoleManagerServer` extends `Server` (`rolemgr.ts`)
-- `DeviceWrapper` (`rolemgr.ts`, internal)
-- `RoleBinding` (`rolemgr.ts`, internal)
-- `ServerBindings` (`rolemgr.ts`, internal)
+- `ClientRoleQuery` (`routing.ts`)
 
 ### Service Helpers
+
 - `BroadcastClient` extends `Client` (`service.ts`)
 - `BroadcastServer` extends `Server` (`service.ts`)
-- `ActuatorServer` extends `jacdac.Server` (`servers.ts`, internal)
-- `HumidityClient` extends `jacdac.SimpleSensorClient` (`test.ts`, test/example)
 
 ## Relationship Notes
 
-- Inheritance spine:
-  - `EventSource` -> `Bus`, `Server`, `Client`, `RegisterClient`, `Device`
-  - `Server` -> `ControlServer`, `RoleManagerServer`, `BroadcastServer`, `ProxyServer`, `BrainServer`, `ActuatorServer`
-  - `Client` -> `BroadcastClient`
 - Composition highlights:
   - `Bus` owns `Server[]`, `Device[]`, and tracks `Client[]`
   - `Device` owns attached `Client[]` and packet query state
   - `Client` owns a `ClientPacketQueue` and `RegisterClient[]`
   - `RoleManagerServer` computes role bindings via `DeviceWrapper`, `RoleBinding`, and `ServerBindings`
+
 - Packet flow:
   - `JDPacket` send path loops back through `bus.processPacket(...)`
   - `Server.sendEvent(...)` uses delayed retransmission (`delayedSend`)
@@ -190,3 +183,66 @@ classDiagram
     RoleMgr[RoleManagerServer] -->|bind and unbind roles| Bus
     RoleMgr --> BindHelpers[RoleBinding and ServerBindings and DeviceWrapper]
   ```
+
+## Native C/C++ Summary (`*.cpp`, `*.c`)
+
+The native layer is split into three responsibilities:
+
+1. **Runtime integration and packet bridge** (`app.cpp`)
+2. **Physical transport drivers** (`hw.cpp`, `jdble.cpp`, `JacdacBLE.cpp`, `mbbridge.cpp`, `led.cpp`)
+3. **Protocol/utility core** (`jdlow.c`, `jdutil.c`)
+
+### `app.cpp`
+
+- Implements the PXT-facing Jacdac physical shim methods (`__physStart`, `__physSendPacket`, `__physGetPacket`, `__physGetDiagnostics`, etc.).
+- Owns RX/TX frame queues (`LinkedFrame`) and event signaling (`EVT_DATA_READY`, `EVT_QUEUE_ANNOUNCE`, `EVT_TX_EMPTY`).
+- Bridges between high-level TypeScript packet flow and the low-level Jacdac core (`jd_init`, `jd_packet_ready`, frame callbacks).
+- Handles super-frame iteration using `jd_shift_frame()` and packet timestamp exposure.
+
+### `hw.cpp`
+
+- Non-ESP32 single-wire Jacdac PHY implementation built around `ZSingleWireSerial`.
+- Provides timer hooks (`tim_*`) and UART/line control hooks expected by `jdlow.c`.
+- Implements low-level bus arbitration details (line-falling detection, TX race handling, RX DMA completion).
+- Reconfigures pin mode dynamically between interrupt edge-detect, RX, and TX to emulate Jacdac single-wire behavior.
+
+### `jdlow.c`
+
+- Core Jacdac low-level state machine and scheduler shared across platforms.
+- Manages bus state, RX/TX activity flags, random backoff, announce scheduling, and timeout recovery.
+- Validates received frames (size, CRC, flags), updates diagnostics counters, and hands packets to app bridge callbacks.
+- Coordinates with platform hooks (`uart_*`, `tim_*`) and app hooks (`app_pull_frame`, `app_handle_frame`, `app_frame_sent`).
+
+### `jdutil.c`
+
+- Utility routines used by the low-level core:
+  - FNV-1a hashing
+  - Pseudo-random generation (`jd_random`, `jd_random_around`)
+  - CRC16 calculation and frame CRC helpers
+  - Super-frame chunk shifting (`jd_shift_frame`)
+  - Frame payload assembly (`jd_push_in_frame`)
+
+### `mbbridge.cpp`
+
+- micro:bit (non-BLE Jacdac transport mode) bridge between device firmware and host tooling.
+- Uses an exchange buffer in RAM and IRQ poke mechanism to move Jacdac frames between device and PC.
+- Hooks `pxt::logJDFrame`/`pxt::sendJDFrame` for bidirectional frame forwarding.
+
+### `jdble.cpp`
+
+- micro:bit BLE Jacdac transport bootstrap.
+- Initializes `JacdacBLE`, wires BLE RX events to `pxt::sendJDFrame`, and device TX to BLE indications.
+- Acts as the integration glue between Jacdac frame logging callbacks and BLE service transport.
+
+### `JacdacBLE.cpp`
+
+- BLE service implementation used by `jdble.cpp`.
+- Defines custom Jacdac BLE UUID/service/characteristics (TX, RX, diagnostics).
+- Implements chunked frame transfer over BLE MTU with sequencing and reassembly.
+- Raises Jacdac BLE events once a complete reassembled frame is available.
+
+### `led.cpp`
+
+- Jacdac status LED backend (`_setLedChannel`) with per-target PWM implementations.
+- Supports RP2040, ESP32, and generic CODAL-style pin abstractions.
+- Handles single LED fallback and active-low configuration logic.
