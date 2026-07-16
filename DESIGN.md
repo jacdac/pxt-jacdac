@@ -184,6 +184,50 @@ classDiagram
     RoleMgr --> BindHelpers[RoleBinding and ServerBindings and DeviceWrapper]
   ```
 
+## Proxy Mode Logic (`routing.ts`)
+
+Proxy mode is a special runtime mode where the device behaves as a Jacdac proxy/dongle.
+
+### Activation Paths
+
+- Explicit control command: `ControlCmd.Proxy` in `ControlServer.handlePacketOuter(...)` calls `resetToProxy()` when not already in proxy mode.
+- Simulator brain conflict path: during announce processing in `Bus.processPacket(...)`, if self and a remote device both expose brain service in simulator, runtime calls `resetToProxy()`.
+- Deferred boot activation: `resetToProxy()` persists `JACDAC_PROXY_SETTING` and resets. On next boot, `startProxy()` checks the setting and starts in proxy mode.
+
+### Startup Sequence
+
+- `startProxy()` runs at module init time (after `__physStart()` and platform init, before background `start()`).
+- If `JACDAC_PROXY_SETTING` is present, it calls:
+  - `start({ disableLogger: false, disableRoleManager: true, noWait: true, proxyMode: true })`
+- In `start(...)`, proxy mode does two key things:
+  - Starts `ProxyServer` (`SRV_PROXY`), making proxy capability visible on the bus.
+  - Sets `jacdac.bus.proxyMode = true`.
+
+### Early vs Late Finalization
+
+- `checkProxy()` stores `JACDAC_PROXY_SETTING_LATE` and reports current proxy status.
+- `proxyFinalize()` enters proxy runtime loop, but only if proxy mode is active.
+- `startProxy()` detects whether startup is:
+  - **early**: no late marker; enters proxy loop immediately.
+  - **late**: marker exists; starts proxy stack but lets application call `proxyFinalize()` later.
+- `startSelfServers(...)` uses this pattern by calling `checkProxy()` and then `proxyFinalize()` when needed.
+
+### Runtime Behavior in Proxy Mode
+
+- `proxyLoop()` emits status events:
+  - `StatusEvent.ProxyStarted` at entry.
+  - `StatusEvent.ProxyPacketReceived` on each packet processed.
+- `proxyLoop()` drives a continuous LED pulse animation and intentionally never returns.
+- Client-side packet handling is suppressed by `Client.handlePacketOuter(...)` early return when `jacdac.bus.proxyMode` is true.
+
+### Persistence and Transition Mechanics
+
+- Entering proxy mode is reset-based and persistent across reboot using settings keys:
+  - `JACDAC_PROXY_SETTING`
+  - `JACDAC_PROXY_SETTING_LATE`
+- `resetToProxy()` writes proxy setting then calls `control.reset()`.
+- `startProxy()` consumes and clears settings before starting proxy runtime.
+
 ## Native C/C++ Summary (`*.cpp`, `*.c`)
 
 The native layer is split into three responsibilities:
