@@ -187,6 +187,15 @@ classDiagram
 ## Proxy Mode Logic (`routing.ts`)
 
 Proxy mode is a special runtime mode where the device behaves as a Jacdac proxy/dongle.
+Note that this code runs both in the micro:bit simulator and the actual device. Only
+one of the devices will be in proxy mode at a time.
+
+### Simulator vs Actual Device
+
+- Proxy mode is not switched in place between simulator and hardware; it is entered after a reset and left by rebooting without the proxy setting.
+- The simulator-only transition happens when `isSimulator()` is true and both self and the newly announced device are brains, which triggers `resetToProxy()`.
+- On actual hardware, the same proxy boot path is still available, but there is no simulator brain conflict trigger.
+- Once `proxyMode` is active, the runtime behavior is the same regardless of whether it booted on the simulator or on hardware.
 
 ### Activation Paths
 
