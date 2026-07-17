@@ -50,6 +50,33 @@ hardware features on the Jacdac bus;
 - `RoleManagerServer` extends `Server` (`rolemgr.ts`)
 - `ClientRoleQuery` (`routing.ts`)
 
+## Role Naming Forms (`routing.ts`, `rolemgr.ts`)
+
+Roles are expressed as strings on clients (`new Client(serviceClass, role)`), and the runtime supports several naming forms.
+
+1. Plain role name
+  - Example: `"light"`
+  - Matched through stored bindings managed by role manager (`getRole()` / `setRole()`).
+
+2. Host-prefixed role name
+  - Example: `"robot/leftMotor"`, `"robot/rightMotor"`
+  - Used by auto-bind grouping logic (`RoleBinding.host()`), so related roles are allocated together.
+
+3. Legacy direct device binding
+  - Example: `"<deviceId>"` or `"<deviceId>:<serviceIndex>"`
+  - Handled directly in `Device.matchesRoleAt(...)` before role-manager lookup.
+
+4. Query-based role name
+  - Example: `"light?dev=<deviceId>&srvi=2"`
+  - Parsed by `ClientRoleQuery` with supported keys:
+    - `dev`: target device id, short id, or `self`
+    - `srvi`: exact service index
+    - `srvo`: service offset among services of the same class
+
+5. Explicit role-manager assignment
+  - `RoleManagerCmd.SetRole` and `_rolemgr.setRole(...)` bind a specific `deviceId:serviceIndex` to a role name.
+  - Query suffixes are dropped when stored (`name?dev=...` is persisted as `name`).
+
 ### Service Helpers
 
 - `BroadcastClient` extends `Client` (`service.ts`)
@@ -189,12 +216,14 @@ classDiagram
 Proxy mode is a special runtime mode where the device behaves as a Jacdac proxy/dongle.
 Note that this code runs both in the micro:bit simulator and the actual device. Only
 one of the devices will be in proxy mode at a time.
+In proxy mode, normal client-side Jacdac packet handling is suppressed; the bus can
+still observe packets, but user-facing `Client` handlers do not receive them.
 
 ### Simulator vs Actual Device
 
 - Proxy mode is not switched in place between simulator and hardware; it is entered after a reset and left by rebooting without the proxy setting.
 - The simulator-only transition happens when `isSimulator()` is true and both self and the newly announced device are brains, which triggers `resetToProxy()`.
-- On actual hardware, the same proxy boot path is still available, but there is no simulator brain conflict trigger.
+- On actual hardware, the same proxy boot path is still available, but there is no simulator brain conflict trigger and no simulator-specific branch.
 - Once `proxyMode` is active, the runtime behavior is the same regardless of whether it booted on the simulator or on hardware.
 
 ### Activation Paths
@@ -236,6 +265,32 @@ one of the devices will be in proxy mode at a time.
   - `JACDAC_PROXY_SETTING_LATE`
 - `resetToProxy()` writes proxy setting then calls `control.reset()`.
 - `startProxy()` consumes and clears settings before starting proxy runtime.
+
+### State Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> NormalBoot
+
+    state "Normal runtime" as NormalBoot
+    state "Simulator brain-conflict path" as SimulatorBranch
+    state "Hardware proxy-command path" as HardwareBranch
+    state "Proxy boot" as ProxyBoot
+    state "Proxy runtime" as ProxyRuntime
+    state "Late finalize gate" as LateGate
+
+    NormalBoot --> SimulatorBranch: isSimulator() && brain conflict
+    NormalBoot --> HardwareBranch: ControlCmd.Proxy
+    HardwareBranch --> ProxyBoot: resetToProxy() / reboot
+    SimulatorBranch --> ProxyBoot: resetToProxy() / reboot
+
+    ProxyBoot --> LateGate: checkProxy() sets JACDAC_PROXY_SETTING_LATE
+    ProxyBoot --> ProxyRuntime: no late marker
+    LateGate --> ProxyRuntime: proxyFinalize()
+
+    ProxyRuntime --> ProxyRuntime: packets processed / status events
+    ProxyRuntime --> NormalBoot: reboot without proxy setting
+```
 
 ## Native C/C++ Summary (`*.cpp`, `*.c`)
 
