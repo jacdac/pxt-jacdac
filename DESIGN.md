@@ -95,6 +95,164 @@ Roles are expressed as strings on clients (`new Client(serviceClass, role)`), an
   - `Server.sendEvent(...)` uses delayed retransmission (`delayedSend`)
   - Pipes (`InPipe`/`OutPipe`) exchange framed data via `JDPacket` on `JD_SERVICE_INDEX_PIPE`
 
+## Client Design (`routing.ts`)
+
+`Client` is the consumer-side runtime object for one Jacdac service class and role.
+It binds to a `Device`/service index, receives packets, tracks register projections,
+and replays client state after reconnect.
+
+### Lifecycle and Binding
+
+- Construction sets service class and role (`new Client(serviceClass, role)`).
+- `start()` registers the client with the bus (`bus.startClient(this)`), enabling auto-attach.
+- `_attach(...)` validates role match, sets `device` and `serviceIndex`, and emits connect.
+- `_detach()` clears binding, emits disconnect, and returns the client to unattached pool.
+- `destroy()` unregisters the client and replaces registered event handlers with no-op handlers.
+
+### Register Model
+
+Client subclasses typically call `addRegister(...)` for each typed register.
+Each register is represented by `RegisterClient<TValues>`, which provides:
+
+- packed-value storage (`_data`) and timestamp (`_localTime`)
+- typed get/set (`values`) via `jdpack`/`jdunpack`
+- update/change notifications (`REPORT_RECEIVE`, `REPORT_UPDATE`, `CHANGE`)
+- polling helper (`pauseUntilValues(...)`)
+
+### Caching and Refresh Behavior
+
+The client stack uses two cache layers and one reconnect queue:
+
+1. Register value cache (`RegisterClient`)
+  - Last report bytes are cached in `_data`.
+  - Incoming `GET_REG` reports update cache and timestamp.
+  - Change events fire only when payload bytes differ from prior cache.
+
+2. Device query cache (`Device.query(...)`)
+  - Query state per `(register, serviceIndex)` is cached as `RegQuery`
+    (`lastQuery`, `lastReport`, `value`, `notImplemented`).
+  - Refresh is throttled by register class:
+    - regular registers use `REGISTER_REFRESH_RATE` (250 ms)
+    - optional registers use `REGISTER_OPTIONAL_REFRESH_RATE` (1000 ms)
+    - const registers pass `null` refresh and are only requested until value exists
+  - `CommandNotImplemented` marks a query as unsupported to suppress retries.
+
+3. Outbound replay cache (`ClientPacketQueue`)
+  - Queues `SET_REG` packets and packets sent while unbound.
+  - Deduplicates by command, keeping only the most recent payload per command.
+  - On reconnect (`handleConnected()`), `resend()` replays queued packets.
+  - After replay, non-`SET_REG` packets are dropped; `SET_REG` state persists for future reconnects.
+
+### Cache Invalidation Triggers
+
+Register caches are cleared when:
+
+- the client changes bound device (`Client.device` setter calls `reg.reset()`)
+- a `SystemEvent.Change` is received by the client (`handlePacketOuter` resets registers)
+
+This ensures stale values are not reused across topology or service-state changes.
+
+### Broadcast Client Behavior
+
+When `broadcast` is true, client binding differs:
+
+- `device` is not pinned to a single server
+- matching uses service class across attached devices
+- packet handling still goes through the same register and event machinery
+
+## Server Design (`routing.ts`)
+
+`Server` is the provider-side runtime object for one local Jacdac service.
+It exposes registers and commands over the bus, tracks local service state,
+and emits events/reports to remote clients.
+
+### Lifecycle and Connectivity
+
+- Construction sets the service class and optional behavior (`ServerOptions`).
+- `start()` registers the server with the bus (`bus.addServer(this)`) and marks it running.
+- `stop()` marks it not running.
+- `isConnected()` reflects running state (server presence on local bus runtime).
+
+### Configurable Surface (`ServerOptions`)
+
+The base class can expose common service metadata and controls without subclass boilerplate:
+
+- `instanceName` and `variant`
+- `statusCode` and vendor status code
+- optional `value` register (with `valuePackFormat`)
+- optional `intensity` register (with `intensityPackFormat`)
+- optional `calibrate` callback
+- optional constant register table (`constants`)
+
+### Packet Handling Model
+
+`handlePacketOuter(pkt)` implements layered dispatch:
+
+1. Generic system registers and commands
+  - `StatusCode`, `InstanceName`, `Variant`, optional `Value`, optional `Intensity`
+  - `Calibrate` command
+
+2. Constant registers
+  - If configured, `GET_REG` reads are served from `constants`.
+
+3. Service-specific logic
+  - Falls through to subclass override `handlePacket(pkt)`.
+
+The base class sets `stateUpdated = false` before specialized handling; helper register
+handlers set it true when incoming writes actually change state.
+
+### Register Read/Write Helpers
+
+The class provides helpers that implement GET/SET semantics with change detection:
+
+- `handleRegFormat(...)` for tuple-like packed registers
+- `handleRegValue(...)` for scalar values
+- `handleRegBool(...)`, `handleRegInt32(...)`, `handleRegUInt32(...)`
+- `handleRegBuffer(...)` for fixed-size buffer registers
+
+Common behavior in these helpers:
+
+- ignore unrelated packet/register IDs
+- on GET: send current value with `sendReport(...)`
+- on SET: ignore read-only registers (`0x1xx`), apply new value, and mark state changed when different
+
+### Event and Report Semantics
+
+- `sendReport(pkt)` sends a report from this service index.
+- `sendEvent(eventCode, data?)` emits an event report and schedules two retries
+  (`+20 ms` and `+100 ms`) via delayed send for reliability.
+- `sendChangeEvent()` emits `SystemEvent.Change` and local `CHANGE` event.
+- `setStatusCode(...)` and `setStatusVendorCode(...)` call `sendChangeEvent()` when value changes.
+
+### Built-In State Semantics
+
+- `disabled` is true when the optional intensity register exists and is zero.
+- `ready` requires server running, not disabled, and status code `Ready`.
+- `value` and `intensity` setters emit local `CHANGE` on mutation.
+
+### Calibration Flow
+
+- `Calibrate` command is handled by `handleCalibrateCommand(...)`.
+- If calibration support is provided, status moves to `Calibrating`, calibration runs in background,
+  then status becomes `Ready` on success or `CalibrationNeeded` on failure.
+- If calibration is not implemented, command is reported as not implemented.
+
+## Client vs Server Responsibilities
+
+| Aspect | Client (`routing.ts`) | Server (`routing.ts`) |
+|---|---|---|
+| Primary role | Consumes remote services by role/service class | Exposes a local service implementation |
+| Bus registration | `start()` -> `bus.startClient(this)` | `start()` -> `bus.addServer(this)` |
+| Binding model | Dynamic attach/detach to `Device` + `serviceIndex` | Fixed local `serviceIndex` assigned by bus |
+| Main packet entry | `handlePacketOuter(pkt)` then `handlePacket(pkt)` | `handlePacketOuter(pkt)` then `handlePacket(pkt)` |
+| Register abstraction | `RegisterClient<T>` per register via `addRegister(...)` | Helper handlers (`handleRegValue`, `handleRegFormat`, etc.) |
+| Read path | Poll/query + consume `GET_REG` reports into cache | Serve `GET_REG` from current service state |
+| Write path | `setReg`/`setRegBuffer` send commands to remote service | Accept `SET_REG`, update local state, mark `stateUpdated` |
+| Caching | Register value cache + device query cache | No separate read cache layer; state fields are source of truth |
+| Reconnect behavior | `ClientPacketQueue.resend()` replays queued outbound state | No reconnect replay queue in base class |
+| Change propagation | Emits local events from incoming reports/events | Emits `SystemEvent.Change` via `sendChangeEvent()` |
+| Broadcast mode | Optional (`broadcast=true`) for service-class fanout | N/A at base class level |
+
 ## Mermaid Diagram
 
 ```mermaid
