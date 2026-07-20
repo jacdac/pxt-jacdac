@@ -253,6 +253,77 @@ Common behavior in these helpers:
 | Change propagation | Emits local events from incoming reports/events | Emits `SystemEvent.Change` via `sendChangeEvent()` |
 | Broadcast mode | Optional (`broadcast=true`) for service-class fanout | N/A at base class level |
 
+## Pipe Abstraction (`pipes.ts`)
+
+Pipes provide a lightweight point-to-point stream-like channel on top of Jacdac packets.
+They are used for bulk or list-like exchanges where register semantics are awkward
+(for example, Wi-Fi scan results or role listing).
+
+### Core Types
+
+- `InPipe`: receive side, owns a local ephemeral port, queues incoming payload buffers.
+- `OutPipe`: send side, targets a specific `deviceId` and remote port.
+
+Both use service index `JD_SERVICE_INDEX_PIPE` (`0x3e`) and encode port/counter/flags
+in `serviceCommand`.
+
+### Frame Encoding
+
+`serviceCommand` layout in `pipes.ts`:
+
+- low 5 bits: per-pipe packet counter (`COUNTER_MASK`)
+- bit 5: close flag (`CLOSE_MASK`)
+- bit 6: metadata flag (`METADATA_MASK`)
+- upper bits: pipe port (`port << PORT_SHIFT`)
+
+This gives ordered packet progression with explicit close and optional metadata frames.
+
+### Inbound Routing and Lifetime
+
+- A single packet hook (`handlePipeData`) is installed on first `InPipe` creation.
+- Incoming packets are accepted only when:
+  - `serviceIndex == JD_SERVICE_INDEX_PIPE`
+  - `deviceIdentifier == bus.selfDevice.deviceId`
+- Packet port selects the target `InPipe` instance from a process-local `pipes` table.
+- `InPipe` validates counter progression (`nextCnt`) and drops out-of-sequence frames.
+- `close` marks the pipe closed and removes it from the table.
+
+### Read Semantics
+
+- `read()` is blocking: waits for queue data or closure event.
+- `bytesAvailable()` sums queued payload bytes.
+- `readList(f)` drains until close, mapping each non-empty buffer through `f`.
+- Metadata frames call `meta(buf)` (override point), while normal frames enqueue payload.
+
+### Outbound Semantics and Reliability
+
+- `OutPipe.writeEx(...)` builds a pipe packet with current counter and flags.
+- Every pipe send uses `_sendWithAck(deviceId)`.
+- Missing ACK closes the pipe and throws `"out pipe error: no ack"`.
+- `close()` sends an empty payload with close flag (`writeAndClose(Buffer.create(0))`).
+- `writeMeta(...)` sends out-of-band metadata flagged with `METADATA_MASK`.
+
+### Open/Handshake Pattern
+
+`InPipe.openCommand(cmd)` packages `(selfDeviceId, localPort, 0)` into a command payload.
+Typical usage:
+
+1. Client creates `InPipe`.
+2. Client sends command-with-ack carrying open payload (`openCommand(...)`).
+3. Server responds (often with assigned return port) and streams back via `OutPipe`.
+4. Stream ends with close frame.
+
+Examples in this repository:
+
+- Wi-Fi scan: client opens a pipe, sends scan command, then reads AP entries via `readList(...)`.
+- TCP socket: metadata frame carries connection parameters before normal data exchange.
+- Role listing/settings: server uses `OutPipe.respondForEach(...)` to stream list elements.
+
+### Convenience Helper
+
+- `OutPipe.respondForEach(pkt, inp, f)` creates an output pipe from an incoming open packet,
+  writes each mapped element, and closes automatically in a background task.
+
 ## Mermaid Diagram
 
 ```mermaid
