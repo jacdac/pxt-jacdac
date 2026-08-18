@@ -10,6 +10,10 @@ namespace jacdac._rolemgr {
         return settings.readString(roleSettingPrefix + devid + ":" + servIdx)
     }
 
+    // TODO: the mapping seems to be backwards, i.e. the role is bound to the service, not the other way around
+    // TODO: this is problematic when the deviceid is 0, as we will overwrite the role, and we can't have 
+    // TODO: multiple roles for the same device:service. It currently works because the list roles command
+    // TODO: iterates over all clients, rather than using getRole
     export function setRole(devid: string, servIdx: number, role: string) {
         const key = roleSettingPrefix + devid + ":" + servIdx
         if (role) {
